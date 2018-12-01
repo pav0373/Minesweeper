@@ -1,6 +1,7 @@
 package com.example.marek.minesweeper;
 
 import android.content.Context;
+import android.widget.Switch;
 
 public class GameEngine {
 
@@ -11,6 +12,7 @@ public class GameEngine {
     private Context context;
 
     private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
+
 
     public static final int BOMB_NUMBER = 10;
     public static final int WIDTH = 10;
@@ -45,6 +47,7 @@ public class GameEngine {
             }
         }
 
+
     }
 
     public Cell getCellAt(int position) {
@@ -63,7 +66,10 @@ public class GameEngine {
 
 
     public void click(int x, int y) {
-        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked())
+        Switch s = ((MainActivity)context).findViewById(R.id.switcher);
+
+
+        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked() && !s.isChecked())
         {
             getCellAt(x,y).setClicked();
 
@@ -87,10 +93,22 @@ public class GameEngine {
             }
         }
 
+        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked() && s.isChecked())
+        {
+            flag(x,y);
+        }
 
     }
 
     private void onGameLost() {
         // lost game
+    }
+
+    public void flag(int x, int y) {
+
+        boolean isFlagged = getCellAt(x,y).isFlagged();
+        getCellAt(x,y).setFlagged(!isFlagged);
+        getCellAt(x,y).invalidate();
+
     }
 }

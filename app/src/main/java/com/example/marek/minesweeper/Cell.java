@@ -6,7 +6,9 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 
-public class Cell extends BaseCell implements View.OnClickListener{
+public class Cell extends BaseCell implements View.OnClickListener, View.OnLongClickListener{
+
+
 
     public Cell(Context context, int position){
 
@@ -15,7 +17,10 @@ public class Cell extends BaseCell implements View.OnClickListener{
         setPosition(position);
 
         setOnClickListener(this);
+        setOnLongClickListener(this);
     }
+
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -79,6 +84,7 @@ public class Cell extends BaseCell implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+
         GameEngine.getInstance().click(getXPos(),getYPos());
     }
 
@@ -111,4 +117,13 @@ public class Cell extends BaseCell implements View.OnClickListener{
         drawable.draw(canvas);
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+
+
+        GameEngine.getInstance().flag( getXPos(),getYPos());
+
+
+        return true;
+    }
 }
