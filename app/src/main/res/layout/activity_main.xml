@@ -7,7 +7,7 @@
     android:id="@+id/mainAct"
     tools:context=".MainActivity">
 
-    
+
     <com.example.marek.minesweeper.Grid
         android:id="@+id/minesweeperGridView"
         android:layout_width="match_parent"
