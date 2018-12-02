@@ -2,6 +2,7 @@ package com.example.marek.minesweeper;
 
 import android.content.Context;
 import android.widget.Switch;
+import android.widget.Toast;
 
 public class GameEngine {
 
@@ -16,7 +17,7 @@ public class GameEngine {
 
     public static final int BOMB_NUMBER = 10;
     public static final int WIDTH = 10;
-    public static final int HEIGHT = 10;
+    public static final int HEIGHT = 14;
 
     public static GameEngine getInstance(){
         if (instance == null)
@@ -40,7 +41,7 @@ public class GameEngine {
             for (int y=0; y<HEIGHT;y++)
             {
                 if( MinesweeperGrid[x][y] == null ){
-                    MinesweeperGrid[x][y] = new Cell( context, y * HEIGHT + x);
+                    MinesweeperGrid[x][y] = new Cell( context, x,y);
                 }
                 MinesweeperGrid[x][y].setValue(grid[x][y]);
                 MinesweeperGrid[x][y].invalidate();
@@ -52,7 +53,7 @@ public class GameEngine {
 
     public Cell getCellAt(int position) {
         int x = position % WIDTH;
-        int y = position / HEIGHT;
+        int y = position / WIDTH;
 
         return MinesweeperGrid[x][y];
 
@@ -66,49 +67,105 @@ public class GameEngine {
 
 
     public void click(int x, int y) {
-        Switch s = ((MainActivity)context).findViewById(R.id.switcher);
 
-
-        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked() && !s.isChecked())
+        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked())
         {
-            getCellAt(x,y).setClicked();
+            Switch s = ((MainActivity)context).findViewById(R.id.switcher);
 
-            if ( getCellAt(x,y).getValue()==0)
+            if(s.isChecked())
             {
-                for(int xt = -1;xt<=1;xt++)
+                flag(x,y);
+            }
+
+            else
+            {
+                getCellAt(x, y).setClicked();
+
+                if (getCellAt(x, y).getValue() == 0)
                 {
-                    for(int yt = -1;yt<=1;yt++)
+
+                    for (int xt = -1; xt <= 1; xt++)
                     {
-                        if(xt!=yt)
+                        for (int yt = -1; yt <= 1; yt++)
                         {
-                            click(x+xt,y+yt);
+                            if (xt != yt)
+                            {
+                                click(x + xt, y + yt);
+                            }
                         }
                     }
                 }
-            }
 
-            if (getCellAt(x,y).isBomb())
-            {
-                onGameLost();
+                if (getCellAt(x, y).isBomb() && !getCellAt(x,y).isFlagged())
+                {
+                    onGameLost();
+                }
             }
         }
 
-        if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked() && s.isChecked())
+        checkEnd();
+
+    }
+
+    private boolean checkEnd()
+    {
+        int bombFound = 0;
+        int notRevealed = WIDTH * HEIGHT - BOMB_NUMBER;
+
+        for (int x = 0; x<WIDTH;x++)
         {
-            flag(x,y);
+            for (int y = 0; y<HEIGHT;y++)
+            {
+                if(getCellAt(x,y).isRevealed())
+                {
+                    notRevealed--;
+                }
+
+                if(getCellAt(x,y).isFlagged())
+                {
+                    bombFound++;
+                }
+            }
+        }
+        if(bombFound == BOMB_NUMBER && notRevealed == 0 )
+        {
+            onGameWon();
+        }
+        return true;
+    }
+
+    private void onGameWon()
+    {
+        Toast.makeText(context,"Game won",Toast.LENGTH_SHORT).show();
+
+        for (int x = 0; x<WIDTH;x++)
+        {
+            for (int y = 0; y<HEIGHT;y++)
+            {
+                getCellAt(x,y).setRevealed(true);
+            }
         }
 
     }
 
-    private void onGameLost() {
-        // lost game
+    private void onGameLost()
+    {
+        Toast.makeText(context,"Game lost",Toast.LENGTH_SHORT).show();
+
+        for (int x = 0; x<WIDTH;x++)
+        {
+            for (int y = 0; y<HEIGHT;y++)
+            {
+                getCellAt(x,y).bombReveal();
+            }
+        }
     }
 
-    public void flag(int x, int y) {
-
-        boolean isFlagged = getCellAt(x,y).isFlagged();
-        getCellAt(x,y).setFlagged(!isFlagged);
-        getCellAt(x,y).invalidate();
+    public void flag(int x, int y)
+    {
+            boolean isFlagged = getCellAt(x, y).isFlagged();
+            getCellAt(x, y).setFlagged(!isFlagged);
+            getCellAt(x, y).invalidate();
 
     }
 }

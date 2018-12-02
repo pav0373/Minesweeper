@@ -10,11 +10,11 @@ public class Cell extends BaseCell implements View.OnClickListener, View.OnLongC
 
 
 
-    public Cell(Context context, int position){
+    public Cell(Context context, int x, int y){
 
         super(context);
 
-        setPosition(position);
+        setPosition(x,y);
 
         setOnClickListener(this);
         setOnLongClickListener(this);
@@ -120,9 +120,9 @@ public class Cell extends BaseCell implements View.OnClickListener, View.OnLongC
     @Override
     public boolean onLongClick(View v) {
 
-
-        GameEngine.getInstance().flag( getXPos(),getYPos());
-
+        if (!isClicked()) {
+                GameEngine.getInstance().flag(getXPos(), getYPos());
+        }
 
         return true;
     }

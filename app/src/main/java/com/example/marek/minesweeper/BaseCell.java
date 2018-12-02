@@ -14,7 +14,6 @@ public abstract class BaseCell extends View {
 
     private int x, y;
 
-    private int position;
 
     public BaseCell(Context context){
         super(context);
@@ -43,9 +42,6 @@ public abstract class BaseCell extends View {
         return isBomb;
     }
 
-    public void setBomb(boolean bomb) {
-        isBomb = bomb;
-    }
 
     public boolean isRevealed() {
         return isRevealed;
@@ -53,17 +49,40 @@ public abstract class BaseCell extends View {
 
     public void setRevealed(boolean revealed) {
         isRevealed = revealed;
+        isClicked = revealed;
+        invalidate();
     }
+
 
     public boolean isClicked() {
         return isClicked;
     }
 
     public void setClicked() {
-        isClicked = true;
-        this.isRevealed = true;
 
-        invalidate();
+        if(!isFlagged()) {
+            isClicked = true;
+            this.isRevealed = true;
+            invalidate();
+        }
+
+
+    }
+
+    public void bombReveal() {
+
+        if (!isFlagged()) {
+            isClicked = true;
+            this.isRevealed = true;
+            invalidate();
+        }
+        if (isFlagged() && !isBomb())
+        {
+            setFlagged(false);
+            isClicked = true;
+            this.isRevealed = true;
+            invalidate();
+        }
     }
 
     public boolean isFlagged() {
@@ -72,6 +91,7 @@ public abstract class BaseCell extends View {
 
     public void setFlagged(boolean flagged) {
         isFlagged = flagged;
+
     }
 
 
@@ -84,20 +104,14 @@ public abstract class BaseCell extends View {
         return y;
     }
 
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-
-        x = position % GameEngine.WIDTH;
-        y = position / GameEngine.HEIGHT;
+    public void setPosition(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
 
         invalidate();
-
     }
+
 
 
 }
