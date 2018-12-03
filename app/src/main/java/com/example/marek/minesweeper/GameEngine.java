@@ -1,6 +1,7 @@
 package com.example.marek.minesweeper;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -15,7 +16,7 @@ public class GameEngine {
     private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
 
 
-    public static final int BOMB_NUMBER = 10;
+    private static final int BOMB_NUMBER = 10;
     public static final int WIDTH = 10;
     public static final int HEIGHT = 14;
 
@@ -59,7 +60,7 @@ public class GameEngine {
 
     }
 
-    public Cell getCellAt(int x, int y) {
+    private Cell getCellAt(int x, int y) {
 
         return MinesweeperGrid[x][y];
 
@@ -151,12 +152,15 @@ public class GameEngine {
     private void onGameLost()
     {
         Toast.makeText(context,"Game lost",Toast.LENGTH_SHORT).show();
-
+        MediaPlayer explosion = MediaPlayer.create(context,R.raw.explosion);
+        explosion.setVolume(1, 1);
+        explosion.start();
         for (int x = 0; x<WIDTH;x++)
         {
             for (int y = 0; y<HEIGHT;y++)
             {
                 getCellAt(x,y).bombReveal();
+
             }
         }
     }
