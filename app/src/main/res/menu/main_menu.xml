@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/restart"
+        android:title="Restart"
+        />
+
+    <item
+        android:id="@+id/obtiznost"
+        android:title="Obtiznost"
+        />
+</menu>

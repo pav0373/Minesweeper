@@ -2,7 +2,9 @@ package com.example.marek.minesweeper;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.Handler;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class GameEngine {
@@ -15,10 +17,32 @@ public class GameEngine {
 
     private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
 
+    private long startTime = 0;
+
+    private TextView timerView;
+
+    private Handler timerHandler = new Handler();
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - startTime;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+
+            TextView timerView = ((MainActivity)context).findViewById(R.id.timer);
+            timerView.setText(String.format("%d:%02d", minutes, seconds));
+
+            timerHandler.postDelayed(this, 500);
+        }
+    };
+
+
 
     private static final int BOMB_NUMBER = 10;
     public static final int WIDTH = 10;
-    public static final int HEIGHT = 14;
+    public static final int HEIGHT = 8;
 
     public static GameEngine getInstance(){
         if (instance == null)
@@ -50,6 +74,8 @@ public class GameEngine {
         }
 
 
+        startTime = System.currentTimeMillis();
+        timerHandler.postDelayed(timerRunnable,0);
     }
 
     public Cell getCellAt(int position) {
@@ -68,6 +94,8 @@ public class GameEngine {
 
 
     public void click(int x, int y) {
+
+
 
         if (x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && !getCellAt(x,y).isClicked())
         {
@@ -101,10 +129,14 @@ public class GameEngine {
                 {
                     onGameLost();
                 }
+                else
+                {
+                    checkEnd();
+                }
             }
         }
 
-        checkEnd();
+
 
     }
 
@@ -132,11 +164,21 @@ public class GameEngine {
         {
             onGameWon();
         }
+
+
+        TextView mineCount = ((MainActivity)context).findViewById(R.id.minesCounter);
+        int bombs = BOMB_NUMBER - bombFound;
+        mineCount.setText("Mines: " + bombs);
+
+
+
         return true;
     }
 
     private void onGameWon()
     {
+        timerHandler.removeCallbacks(timerRunnable);
+
         Toast.makeText(context,"Game won",Toast.LENGTH_SHORT).show();
 
         for (int x = 0; x<WIDTH;x++)
@@ -151,6 +193,9 @@ public class GameEngine {
 
     private void onGameLost()
     {
+
+        timerHandler.removeCallbacks(timerRunnable);
+
         Toast.makeText(context,"Game lost",Toast.LENGTH_SHORT).show();
         MediaPlayer explosion = MediaPlayer.create(context,R.raw.explosion);
         explosion.setVolume(1, 1);
