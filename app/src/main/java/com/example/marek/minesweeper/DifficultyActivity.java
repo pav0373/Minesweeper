@@ -27,11 +27,10 @@ public class DifficultyActivity extends Activity {
 
             @Override
             public void onItemClick(AdapterView<?>adapter, View v, int position, long id){
-                //Object item = adapter.getItemAtPosition(position);
-
                 Intent intent = new Intent();
-                intent.putExtra("Difficulty",id); //item.toString()
+                intent.putExtra("Difficulty", id);
                 setResult(100,intent);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });

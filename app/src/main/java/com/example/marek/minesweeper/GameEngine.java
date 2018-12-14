@@ -1,6 +1,7 @@
 package com.example.marek.minesweeper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -24,6 +25,9 @@ public class GameEngine {
 
     private TextView timerView;
 
+    private int sec;
+    private int diff = 0;
+
     public static final String PREFS= "DifficultyPrefs";
     private Handler timerHandler = new Handler();
     private Runnable timerRunnable = new Runnable() {
@@ -34,6 +38,7 @@ public class GameEngine {
 
                 long millis = System.currentTimeMillis() - startTime;
                 int seconds = (int) (millis / 1000);
+            sec = seconds;
                 int minutes = seconds / 60;
                 seconds = seconds % 60;
 
@@ -195,6 +200,13 @@ public class GameEngine {
             }
         }
 
+
+        Intent saveScore = new Intent(context, SaveActivity.class);
+
+        saveScore.putExtra("time", sec);
+        saveScore.putExtra("diff", diff);
+        context.startActivity(saveScore);
+
     }
 
     private void onGameLost()
@@ -214,6 +226,8 @@ public class GameEngine {
 
             }
         }
+
+
     }
 
     public void flag(int x, int y)
@@ -243,8 +257,9 @@ public class GameEngine {
                 id=0;
                 break;
 
-        }
 
+        }
+        diff = id;
 
         SharedPreferences.Editor editor = context.getSharedPreferences(PREFS, MODE_PRIVATE).edit();
         editor.putInt("id", id);

@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.GridView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -49,6 +48,9 @@ public class MainActivity extends Activity {
             case R.id.obtiznost:
                 obtiznost();
                 return true;
+            case R.id.score:
+                score();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -79,21 +81,30 @@ public class MainActivity extends Activity {
 
     }
 
+
+    private void score() {
+        Intent score = new Intent(MainActivity.this, ScoreActivity.class);
+        startActivity(score);
+
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==100)
-        {
-            long id=data.getLongExtra("Difficulty",0);
-            Toast.makeText(this,"Obtiznost "+(int)(id+1),Toast.LENGTH_LONG).show();
-            GameEngine.getInstance().setDifficulty((int)id);
-            GameEngine.getInstance().refresh();
-            GridView mine = findViewById(R.id.minesweeperGridView);
-            mine.invalidateViews();
+        if (requestCode == 100) {
 
+            if (resultCode == DifficultyActivity.RESULT_OK) {
+                long id = data.getLongExtra("Difficulty", 0);
+                GameEngine.getInstance().setDifficulty((int) id);
+                GameEngine.getInstance().refresh();
+                GridView mine = findViewById(R.id.minesweeperGridView);
+                mine.invalidateViews();
+            }
         }
+
     }
 
 

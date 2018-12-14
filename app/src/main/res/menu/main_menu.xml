@@ -8,4 +8,9 @@
         android:id="@+id/obtiznost"
         android:title="Obtiznost"
         />
+
+    <item
+        android:id="@+id/score"
+        android:title="Skore"
+        />
 </menu>
