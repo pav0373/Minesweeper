@@ -1,11 +1,14 @@
 package com.example.marek.minesweeper;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class GameEngine {
 
@@ -15,34 +18,38 @@ public class GameEngine {
 
     private Context context;
 
-    private Cell[][] MinesweeperGrid = new Cell[WIDTH][HEIGHT];
+    private Cell[][] MinesweeperGrid;
 
     private long startTime = 0;
 
     private TextView timerView;
 
+    public static final String PREFS= "DifficultyPrefs";
     private Handler timerHandler = new Handler();
-    Runnable timerRunnable = new Runnable() {
+    private Runnable timerRunnable = new Runnable() {
 
         @Override
         public void run() {
-            long millis = System.currentTimeMillis() - startTime;
-            int seconds = (int) (millis / 1000);
-            int minutes = seconds / 60;
-            seconds = seconds % 60;
 
-            TextView timerView = ((MainActivity)context).findViewById(R.id.timer);
-            timerView.setText(String.format("%d:%02d", minutes, seconds));
 
-            timerHandler.postDelayed(this, 500);
+                long millis = System.currentTimeMillis() - startTime;
+                int seconds = (int) (millis / 1000);
+                int minutes = seconds / 60;
+                seconds = seconds % 60;
+
+                TextView timerView = ((MainActivity) context).findViewById(R.id.timer);
+                timerView.setText(String.format("%d:%02d", minutes, seconds));
+
+                timerHandler.postDelayed(this, 500);
+
         }
     };
 
 
 
-    private static final int BOMB_NUMBER = 10;
-    public static final int WIDTH = 10;
-    public static final int HEIGHT = 8;
+    private static int BOMB_NUMBER = 10;
+    public static int WIDTH = 10;
+    public static int HEIGHT = 8;
 
     public static GameEngine getInstance(){
         if (instance == null)
@@ -61,6 +68,7 @@ public class GameEngine {
     }
 
     private void setGrid( final Context context, final int[][] grid){
+        MinesweeperGrid = new Cell[WIDTH][HEIGHT];
         for (int x = 0; x<WIDTH;x++)
         {
             for (int y=0; y<HEIGHT;y++)
@@ -129,14 +137,14 @@ public class GameEngine {
                 {
                     onGameLost();
                 }
-                else
-                {
-                    checkEnd();
-                }
+
+
+
+
             }
         }
 
-
+        checkEnd();
 
     }
 
@@ -169,8 +177,6 @@ public class GameEngine {
         TextView mineCount = ((MainActivity)context).findViewById(R.id.minesCounter);
         int bombs = BOMB_NUMBER - bombFound;
         mineCount.setText("Mines: " + bombs);
-
-
 
         return true;
     }
@@ -217,4 +223,63 @@ public class GameEngine {
             getCellAt(x, y).invalidate();
 
     }
+
+
+    public void setDifficulty(int id)
+    {
+        switch(id){
+            case 0:
+                HEIGHT=10;BOMB_NUMBER=10;
+                break;
+
+            case 1:
+                HEIGHT=12;BOMB_NUMBER=20;
+                break;
+            case 2:
+                HEIGHT=14;BOMB_NUMBER=30;
+                break;
+            default:
+                HEIGHT=10;BOMB_NUMBER=10;
+                id=0;
+                break;
+
+        }
+
+
+        SharedPreferences.Editor editor = context.getSharedPreferences(PREFS, MODE_PRIVATE).edit();
+        editor.putInt("id", id);
+        editor.apply();
+
+        TextView mineCount = ((MainActivity)context).findViewById(R.id.minesCounter);
+        int bombs = BOMB_NUMBER;
+        mineCount.setText("Mines: " + bombs);
+
+    }
+
+    public void refresh()
+    {
+        SharedPreferences prefs = context.getSharedPreferences(GameEngine.PREFS, MODE_PRIVATE);
+        String restoredText = prefs.getString("text", null);
+        if (restoredText != null) {
+            int id = prefs.getInt("id", 0); //0 is the default value.
+
+            GameEngine.getInstance().setDifficulty(id);
+        }
+
+        for (int x = 0; x<MinesweeperGrid.length;x++)
+        {
+            for (int y=0; y<MinesweeperGrid[x].length;y++)
+            {
+                    MinesweeperGrid[x][y] = null;
+            }
+        }
+
+        int[][] generatedGrid = Generator.generate(BOMB_NUMBER,WIDTH,HEIGHT);
+        setGrid(context,generatedGrid);
+
+
+    }
+
+
+
 }
